@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniversityApiBackend.DataAccess;
 
@@ -11,9 +12,10 @@ using UniversityApiBackend.DataAccess;
 namespace UniversityApiBackend.Migrations
 {
     [DbContext(typeof(UniversityDBContex))]
-    partial class UniversityDBContexModelSnapshot : ModelSnapshot
+    [Migration("20221109150245_modify course table")]
+    partial class modifycoursetable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,36 +23,6 @@ namespace UniversityApiBackend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("CategoryCourse", b =>
-                {
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesId", "CoursesId");
-
-                    b.HasIndex("CoursesId");
-
-                    b.ToTable("CategoryCourse");
-                });
-
-            modelBuilder.Entity("CourseStudent", b =>
-                {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CoursesId", "StudentsId");
-
-                    b.HasIndex("StudentsId");
-
-                    b.ToTable("CourseStudent");
-                });
 
             modelBuilder.Entity("UniversityApiBackend.Models.DataModels.Category", b =>
                 {
@@ -124,8 +96,7 @@ namespace UniversityApiBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId")
-                        .IsUnique();
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Chapters");
                 });
@@ -137,6 +108,9 @@ namespace UniversityApiBackend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -175,6 +149,9 @@ namespace UniversityApiBackend.Migrations
                         .HasMaxLength(280)
                         .HasColumnType("nvarchar(280)");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("TargetAudiences")
                         .HasColumnType("nvarchar(max)");
 
@@ -185,6 +162,10 @@ namespace UniversityApiBackend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("StudentId");
 
                     b.ToTable("Courses");
                 });
@@ -286,41 +267,11 @@ namespace UniversityApiBackend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CategoryCourse", b =>
-                {
-                    b.HasOne("UniversityApiBackend.Models.DataModels.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniversityApiBackend.Models.DataModels.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CourseStudent", b =>
-                {
-                    b.HasOne("UniversityApiBackend.Models.DataModels.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UniversityApiBackend.Models.DataModels.Student", null)
-                        .WithMany()
-                        .HasForeignKey("StudentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("UniversityApiBackend.Models.DataModels.Chapter", b =>
                 {
                     b.HasOne("UniversityApiBackend.Models.DataModels.Course", "Course")
-                        .WithOne("Chapter")
-                        .HasForeignKey("UniversityApiBackend.Models.DataModels.Chapter", "CourseId")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -329,7 +280,23 @@ namespace UniversityApiBackend.Migrations
 
             modelBuilder.Entity("UniversityApiBackend.Models.DataModels.Course", b =>
                 {
-                    b.Navigation("Chapter");
+                    b.HasOne("UniversityApiBackend.Models.DataModels.Category", null)
+                        .WithMany("Courses")
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("UniversityApiBackend.Models.DataModels.Student", null)
+                        .WithMany("Courses")
+                        .HasForeignKey("StudentId");
+                });
+
+            modelBuilder.Entity("UniversityApiBackend.Models.DataModels.Category", b =>
+                {
+                    b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("UniversityApiBackend.Models.DataModels.Student", b =>
+                {
+                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniversityApiBackend.DataAccess;
 
@@ -11,9 +12,10 @@ using UniversityApiBackend.DataAccess;
 namespace UniversityApiBackend.Migrations
 {
     [DbContext(typeof(UniversityDBContex))]
-    partial class UniversityDBContexModelSnapshot : ModelSnapshot
+    [Migration("20221105214444_Add Chapter and studen table")]
+    partial class AddChapterandstudentable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -329,7 +331,8 @@ namespace UniversityApiBackend.Migrations
 
             modelBuilder.Entity("UniversityApiBackend.Models.DataModels.Course", b =>
                 {
-                    b.Navigation("Chapter");
+                    b.Navigation("Chapter")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
