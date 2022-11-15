@@ -17,8 +17,9 @@ builder.Services.AddDbContext<UniversityDBContex>(options => options.UseSqlServe
 builder.Services.AddControllers();
 
 //4. Add custom services (forder services)
+builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
-//TODO: Add the rest of services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Models.DataModels;
+using UniversityApiBackend.Services;
 
 namespace UniversityApiBackend.Controllers
 {
@@ -10,10 +11,12 @@ namespace UniversityApiBackend.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly UniversityDBContex _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(UniversityDBContex context)
+        public CategoriesController(UniversityDBContex context, ICategoryService categoryService)
         {
             _context = context;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -22,10 +25,11 @@ namespace UniversityApiBackend.Controllers
             return await _context.Categories.ToListAsync();
         }
 
+        //4. Get category of a specific course
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public ActionResult<Category> GetCategoryOfCourse(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = _categoryService.GetCategoryBySpecificCourse(id);
 
             if (category == null)
             {

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Models.DataModels;
+using UniversityApiBackend.Services;
 
 namespace UniversityApiBackend.Controllers
 {
@@ -10,10 +11,12 @@ namespace UniversityApiBackend.Controllers
     public class CoursesController : ControllerBase
     {
         private readonly UniversityDBContex _context;
+        private readonly ICourseService _courseService;
 
-        public CoursesController(UniversityDBContex context)
+        public CoursesController(UniversityDBContex context, ICourseService courseService)
         {
             _context = context;
+            _courseService = courseService;
         }
 
         [HttpGet]
@@ -22,17 +25,34 @@ namespace UniversityApiBackend.Controllers
             return await _context.Courses.ToListAsync();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(int id)
+        //1. Get all the Courses of a specific category
+        [Route("ByCategory")]
+        [HttpGet]
+        public ActionResult<IEnumerable<Course>> GetCoursesByCategory(int categoryId)
         {
-            var course = await _context.Courses.FindAsync(id);
+            IEnumerable<Course> courses = _courseService.GetCoursesByCategory(categoryId);
 
-            if (course == null)
+            if (courses == null)
             {
                 return NotFound();
             }
 
-            return course;
+            return Ok(courses);
+        }
+
+        //3. Get Uncategorized Courses
+        [Route("ByCategory")]
+        [HttpGet]
+        public ActionResult<IEnumerable<Course>> GetCoursesUncategorized()
+        {
+            IEnumerable<Course> courses = _courseService.GetUncategorizedCourses();
+
+            if (courses == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(courses);
         }
 
         [HttpPut("{id}")]
@@ -76,7 +96,7 @@ namespace UniversityApiBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            var course = await _context.Courses.FindAsync(id);
+            Course course = await _context.Courses.FindAsync(id);
             if (course == null)
             {
                 return NotFound();

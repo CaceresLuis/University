@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Models.DataModels;
@@ -24,29 +19,42 @@ namespace UniversityApiBackend.Controllers
             _studentService = studentService;
         }
 
-        // GET: api/Students
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
         {
             return await _context.Students.ToListAsync();
         }
 
-        // GET: api/Students/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(int id)
+        //2. Get all students who do not have associated courses
+        [Route("StudentWithoutCourses")]
+        [HttpGet]
+        public ActionResult<IEnumerable<Student>> GetStudent()
         {
-            var student = await _context.Students.FindAsync(id);
+            IEnumerable<Student> students = _studentService.GetStudentsWithoutCourses();
 
-            if (student == null)
-            {
-                return NotFound();
-            }
-
-            return student;
+            return Ok(students);
         }
 
-        // PUT: api/Students/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //5. Get students from a specific Course
+        [Route("StudentWithoutCourses")]
+        [HttpGet("{id}")]
+        public ActionResult<IEnumerable<Student>> GetStudentFromCourse(int id)
+        {
+            IEnumerable<Student> students = _studentService.GetStudentsFromASpecificCourse(id);
+
+            return Ok(students);
+        }
+
+        //6. Obtain the Courses of a Student
+        [Route("StudentWithoutCourses")]
+        [HttpGet("{id}")]
+        public ActionResult<IEnumerable<Student>> GetCourseOfStudent(int id)
+        {
+            IEnumerable<Student> students = _studentService.GetCoursesOfAStudent(id);
+
+            return Ok(students);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStudent(int id, Student student)
         {
@@ -76,8 +84,6 @@ namespace UniversityApiBackend.Controllers
             return NoContent();
         }
 
-        // POST: api/Students
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Student>> PostStudent(Student student)
         {
@@ -87,11 +93,10 @@ namespace UniversityApiBackend.Controllers
             return CreatedAtAction("GetStudent", new { id = student.Id }, student);
         }
 
-        // DELETE: api/Students/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
-            var student = await _context.Students.FindAsync(id);
+            Student student = await _context.Students.FindAsync(id);
             if (student == null)
             {
                 return NotFound();
