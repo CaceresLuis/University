@@ -96,7 +96,7 @@ namespace UniversityApiBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            Course course = await _context.Courses.FindAsync(id);
+            Course? course = await _context.Courses.FindAsync(id);
             if (course == null)
             {
                 return NotFound();

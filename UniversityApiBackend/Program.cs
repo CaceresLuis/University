@@ -12,8 +12,10 @@ var connectionString = builder.Configuration.GetConnectionString(CONNECTIONNAME)
 //3. Add Context
 builder.Services.AddDbContext<UniversityDBContex>(options => options.UseSqlServer(connectionString));
 
-// Add services to the container.
+//7.Add Service of JWT Autorization
+//builder.Services.AddJwtTokenServices(builder.Configuration);
 
+// Add services to the container.
 builder.Services.AddControllers();
 
 //4. Add custom services (forder services)
