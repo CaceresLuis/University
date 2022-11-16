@@ -35,12 +35,13 @@ namespace UniversityApiBackend.Controllers
             }
         };
 
+        //TODO: Change by real users in DB
         [HttpPost]
         public IActionResult GetToken(UserLogins userLogins)
         {
             try
             {
-                UserTokens Token = new UserTokens();
+                UserTokens Token = new ();
                 bool Valid = Logins.Any(user => user.Name.Equals(userLogins.UserName, StringComparison.OrdinalIgnoreCase));
 
                 if (Valid)
@@ -68,7 +69,7 @@ namespace UniversityApiBackend.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public IActionResult GetUserList()
         {
             return Ok(Logins);

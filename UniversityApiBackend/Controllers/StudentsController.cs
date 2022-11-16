@@ -35,25 +35,25 @@ namespace UniversityApiBackend.Controllers
             return Ok(students);
         }
 
-        //5. Get students from a specific Course
-        [Route("StudentWithoutCourses")]
-        [HttpGet("{id}")]
-        public ActionResult<IEnumerable<Student>> GetStudentFromCourse(int id)
-        {
-            IEnumerable<Student> students = _studentService.GetStudentsFromASpecificCourse(id);
+        ////5. Get students from a specific Course
+        //[Route("StudentsFromASpecificCourse")]
+        //[HttpGet("{id}")]
+        //public ActionResult<IEnumerable<Student>> GetStudentFromCourse(int id)
+        //{
+        //    IEnumerable<Student> students = _studentService.GetStudentsFromASpecificCourse(id);
 
-            return Ok(students);
-        }
+        //    return Ok(students);
+        //}
 
         //6. Obtain the Courses of a Student
-        [Route("StudentWithoutCourses")]
-        [HttpGet("{id}")]
-        public ActionResult<IEnumerable<Student>> GetCourseOfStudent(int id)
-        {
-            IEnumerable<Student> students = _studentService.GetCoursesOfAStudent(id);
+        //[Route("CourseOfStudent")]
+        //[HttpGet("{id}")]
+        //public ActionResult<IEnumerable<Student>> GetCourseOfStudent(int id)
+        //{
+        //    IEnumerable<Student> students = _studentService.GetCoursesOfAStudent(id);
 
-            return Ok(students);
-        }
+        //    return Ok(students);
+        //}
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStudent(int id, Student student)

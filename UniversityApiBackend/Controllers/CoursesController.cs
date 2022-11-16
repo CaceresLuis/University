@@ -41,7 +41,7 @@ namespace UniversityApiBackend.Controllers
         }
 
         //3. Get Uncategorized Courses
-        [Route("ByCategory")]
+        [Route("CoursesUncategorized")]
         [HttpGet]
         public ActionResult<IEnumerable<Course>> GetCoursesUncategorized()
         {
