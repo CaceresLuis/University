@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
+using Microsoft.AspNetCore.Authorization;
 using UniversityApiBackend.Models.DataModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UniversityApiBackend.Controllers
 {
@@ -25,17 +27,17 @@ namespace UniversityApiBackend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            User? user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
                 return NotFound();
             }
-
             return user;
         }
 
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
             if (id != user.Id)
@@ -65,6 +67,7 @@ namespace UniversityApiBackend.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult<User>> PostUser(User user)
         {
             _context.Users.Add(user);
@@ -74,9 +77,10 @@ namespace UniversityApiBackend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            User? user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();

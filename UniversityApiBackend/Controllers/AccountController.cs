@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Helpers;
 using UniversityApiBackend.Models.DataModels;
 
@@ -11,45 +13,40 @@ namespace UniversityApiBackend.Controllers
     public class AccountController : ControllerBase
     {
         private readonly JwtSettings _jwtSettings;
+        private readonly UniversityDBContex _contex;
 
-        public AccountController(JwtSettings jwtSettings)
+        public AccountController(JwtSettings jwtSettings, UniversityDBContex contex)
         {
             _jwtSettings = jwtSettings;
+            _contex = contex;
         }
 
-        private IEnumerable<User> Logins = new List<User>()
+        private async Task<List<User>> GetUser()
         {
-            new User()
-            {
-                Id= 1,
-                Email = "Admin@mail.com",
-                Name = "Admin",
-                Password= "Pass"
-            },
-            new User()
-            {
-                Id= 2,
-                Email = "User@mail.com",
-                Name = "User 1",
-                Password="Pass"
-            }
-        };
+            return await _contex.Users.ToListAsync();
+        }
 
         //TODO: Change by real users in DB
         [HttpPost]
-        public IActionResult GetToken(UserLogins userLogins)
+        public async Task<IActionResult> GetToken(UserLogins userLogins)
         {
             try
             {
-                UserTokens Token = new ();
+                List<User> Logins = await GetUser();
+                UserTokens Token = new();
                 bool Valid = Logins.Any(user => user.Name.Equals(userLogins.UserName, StringComparison.OrdinalIgnoreCase));
 
                 if (Valid)
                 {
-                    User? user = Logins.FirstOrDefault(user => user.Name.Equals(userLogins.UserName, StringComparison.OrdinalIgnoreCase));
+                    User? user = Logins.FirstOrDefault(user => 
+                            user.Name.Equals(userLogins.UserName, StringComparison.OrdinalIgnoreCase)
+                            && user.Password.Equals(userLogins.Password, StringComparison.OrdinalIgnoreCase)
+                        );
+
                     Token = JwHelpers.GetTokenKey(new UserTokens()
                     {
                         UserName = user.Name,
+                        Role = user.Role,
                         EmailId = user.Email,
                         Id = user.Id,
                         GuidId = Guid.NewGuid()
@@ -70,9 +67,9 @@ namespace UniversityApiBackend.Controllers
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public IActionResult GetUserList()
+        public async Task<IActionResult> GetUserList()
         {
-            return Ok(Logins);
+            return Ok(await GetUser());
         }
     }
 }

@@ -10,5 +10,6 @@
         public string EmailId { get; set; } = string.Empty;
         public Guid GuidId { get; set; }
         public DateTime ExpiredTime { get; set; }
+        public string Role { get; set; } = string.Empty;
     }
 }

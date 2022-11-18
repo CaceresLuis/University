@@ -18,14 +18,14 @@ namespace UniversityApiBackend.Helpers
                 new Claim(ClaimTypes.Expiration, DateTime.UtcNow.AddDays(1).ToString("MM ddd dd yyyy HH:mm:ss tt"))
             };
 
-            if (userAccounts.UserName == "Admin")
+            if (userAccounts.Role == "Administrator")
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
             }
-            else if (userAccounts.UserName == "User 1")
+            else if (userAccounts.Role == "User")
             {
                 claims.Add(new Claim(ClaimTypes.Role, "User"));
-                claims.Add(new Claim("UserOnly", "User 1"));
+                claims.Add(new Claim("UserOnly", $"User: {userAccounts.UserName}"));
             }
             return claims;
         }
@@ -74,6 +74,8 @@ namespace UniversityApiBackend.Helpers
                 userToken.UserName = model.UserName;
                 userToken.Id= model.Id;
                 userToken.GuidId= Id;
+                userToken.EmailId = model.EmailId;
+                userToken.Role =model.Role;
 
                 return userToken;
 
