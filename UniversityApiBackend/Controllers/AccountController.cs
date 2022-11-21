@@ -34,21 +34,19 @@ namespace UniversityApiBackend.Controllers
             {
                 List<User> Logins = await GetUser();
                 UserTokens Token = new();
-                bool Valid = Logins.Any(user => user.Name.Equals(userLogins.UserName, StringComparison.OrdinalIgnoreCase));
+                User? searchUser = (from user in _contex.Users
+                                    where user.Name == userLogins.UserName && user.Password == userLogins.Password
+                                    select user).FirstOrDefault();
 
-                if (Valid)
+                if (searchUser != null)
                 {
-                    User? user = Logins.FirstOrDefault(user => 
-                            user.Name.Equals(userLogins.UserName, StringComparison.OrdinalIgnoreCase)
-                            && user.Password.Equals(userLogins.Password, StringComparison.OrdinalIgnoreCase)
-                        );
 
                     Token = JwHelpers.GetTokenKey(new UserTokens()
                     {
-                        UserName = user.Name,
-                        Role = user.Role,
-                        EmailId = user.Email,
-                        Id = user.Id,
+                        UserName = searchUser.Name,
+                        Role = searchUser.Role,
+                        EmailId = searchUser.Email,
+                        Id = searchUser.Id,
                         GuidId = Guid.NewGuid()
                     }, _jwtSettings);
                 }
