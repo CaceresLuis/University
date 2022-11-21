@@ -20,6 +20,9 @@ builder.Services.AddJwtTokenServices(builder.Configuration);
 // Add services to the container.
 builder.Services.AddControllers();
 
+//1- LOCALIZATION
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 //4. Add custom services (forder services)
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -74,6 +77,16 @@ builder.Services.AddCors(options =>
 );
 
 var app = builder.Build();
+
+//2- SUPPORTED CULTURE
+string[] supportedCultures = new[] { "en-US", "es-ES", "fr-FR", "de-DE" };
+RequestLocalizationOptions localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[1]) // English by default
+    .AddSupportedCultures(supportedCultures) // Add all supported culture
+    .AddSupportedUICultures(supportedCultures); // Add supported culture to UI
+
+//3- Add localization to app
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

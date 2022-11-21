@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Helpers;
 using UniversityApiBackend.Models.DataModels;
@@ -14,11 +15,13 @@ namespace UniversityApiBackend.Controllers
     {
         private readonly JwtSettings _jwtSettings;
         private readonly UniversityDBContex _contex;
+        private readonly IStringLocalizer<AccountController> _stringLocalizer;
 
-        public AccountController(JwtSettings jwtSettings, UniversityDBContex contex)
+        public AccountController(JwtSettings jwtSettings, UniversityDBContex contex, IStringLocalizer<AccountController> stringLocalizer)
         {
-            _jwtSettings = jwtSettings;
             _contex = contex;
+            _jwtSettings = jwtSettings;
+            _stringLocalizer = stringLocalizer;
         }
 
         private async Task<List<User>> GetUser()
@@ -26,7 +29,6 @@ namespace UniversityApiBackend.Controllers
             return await _contex.Users.ToListAsync();
         }
 
-        //TODO: Change by real users in DB
         [HttpPost]
         public async Task<IActionResult> GetToken(UserLogins userLogins)
         {
@@ -40,10 +42,10 @@ namespace UniversityApiBackend.Controllers
 
                 if (searchUser != null)
                 {
-
+                    LocalizedString messege = _stringLocalizer["Welcome"];
                     Token = JwHelpers.GetTokenKey(new UserTokens()
                     {
-                        UserName = searchUser.Name,
+                        UserName = $"{messege}: {searchUser.Name}",
                         Role = searchUser.Role,
                         EmailId = searchUser.Email,
                         Id = searchUser.Id,
