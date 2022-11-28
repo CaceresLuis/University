@@ -12,15 +12,18 @@ namespace UniversityApiBackend.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UniversityDBContex _context;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(UniversityDBContex context)
+        public UsersController(UniversityDBContex context, ILogger<UsersController> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
+            _logger.LogWarning($"{nameof(AccountController)} - {nameof(GetUsers)} - Warning Level Log");
             return await _context.Users.ToListAsync();
         }
 

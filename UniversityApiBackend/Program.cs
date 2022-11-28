@@ -1,11 +1,21 @@
 //1. Usings to work with EntityFramework
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using UniversityApiBackend;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//10. configure Serilog
+builder.Host.UseSerilog((hostBuilderCtx, loggerConf) =>
+{
+    loggerConf
+        .WriteTo.Console()
+        .WriteTo.Debug()
+        .ReadFrom.Configuration(hostBuilderCtx.Configuration);
+});
 
 //2. Connection with SQL Server Express
 const string CONNECTIONNAME = "UniversityDB";
@@ -94,6 +104,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//11. Tell app to use Serilog
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

@@ -5,8 +5,11 @@ namespace UniversityApiBackend.DataAccess
 {
     public class UniversityDBContex : DbContext
     {
-        public UniversityDBContex(DbContextOptions<UniversityDBContex> options) : base(options)
+        private readonly ILoggerFactory _loggerFactory;
+
+        public UniversityDBContex(DbContextOptions<UniversityDBContex> options, ILoggerFactory loggerFactory) : base(options)
         {
+            _loggerFactory = loggerFactory;
         }
 
         public DbSet<User> Users { get; set; }
@@ -14,5 +17,16 @@ namespace UniversityApiBackend.DataAccess
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Category> Categories { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            var logger = _loggerFactory.CreateLogger<UniversityDBContex>();
+            optionsBuilder.LogTo(d => logger.Log(LogLevel.Error, d, new[] { DbLoggerCategory.Database.Name }), LogLevel.Error)
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors();
+
+            //optionsBuilder.LogTo(d => logger.Log(LogLevel.Information, d, new[] { DbLoggerCategory.Database.Name }));
+            //optionsBuilder.EnableSensitiveDataLogging();
+        }
     }
 }
