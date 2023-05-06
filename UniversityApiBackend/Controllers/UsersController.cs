@@ -4,6 +4,7 @@ using UniversityApiBackend.DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using UniversityApiBackend.Models.DataModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using UniversityApiBackend.Enums;
 
 namespace UniversityApiBackend.Controllers
 {

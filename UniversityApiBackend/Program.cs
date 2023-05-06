@@ -1,12 +1,12 @@
 //1. Usings to work with EntityFramework
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using Serilog;
 using UniversityApiBackend;
-using UniversityApiBackend.DataAccess;
+using Microsoft.OpenApi.Models;
 using UniversityApiBackend.Services;
+using Microsoft.EntityFrameworkCore;
+using UniversityApiBackend.DataAccess;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 //10. configure Serilog
 builder.Host.UseSerilog((hostBuilderCtx, loggerConf) =>
@@ -19,7 +19,10 @@ builder.Host.UseSerilog((hostBuilderCtx, loggerConf) =>
 
 //2. Connection with SQL Server Express
 const string CONNECTIONNAME = "UniversityDB";
-var connectionString = builder.Configuration.GetConnectionString(CONNECTIONNAME);
+string connectionString = builder.Configuration.GetConnectionString(CONNECTIONNAME);
+
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //3. Add Context
 builder.Services.AddDbContext<UniversityDBContex>(options => options.UseSqlServer(connectionString));
@@ -39,7 +42,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 //8.Add Autorization
-builder.Services.AddAuthorization(options => 
+builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("UserOnlyPolicy", policy => policy.RequireClaim("UserOnly", "User 1"));
     });
@@ -53,12 +56,12 @@ builder.Services.AddSwaggerGen(options =>
         //We define the security for authorization
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            Name= "Authorization",
-            Type= SecuritySchemeType.Http,
-            Scheme= "Bearer",
-            BearerFormat= "JWT",
-            In= ParameterLocation.Header,
-            Description= "JWT Authorization Header using Bearer Schema"
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization Header using Bearer Schema"
         });
 
         options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -86,7 +89,7 @@ builder.Services.AddCors(options =>
     })
 );
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 //2- SUPPORTED CULTURE
 string[] supportedCultures = new[] { "en-US", "es-ES", "fr-FR", "de-DE" };

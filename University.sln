@@ -5,7 +5,9 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversityApiBackend", "UniversityApiBackend\UniversityApiBackend.csproj", "{0A4A1C7C-521C-49AE-8CEA-F879C8F16994}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqSnippets", "LinqSnippets\LinqSnippets.csproj", "{645F9098-E333-40FC-B2DF-C7568ECFB985}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LinqSnippets", "LinqSnippets\LinqSnippets.csproj", "{645F9098-E333-40FC-B2DF-C7568ECFB985}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EjemploFlujoAsync", "EjemploFlujoAsync\EjemploFlujoAsync.csproj", "{C2254689-19EA-4E1D-8EEA-9947D6C80E78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{645F9098-E333-40FC-B2DF-C7568ECFB985}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{645F9098-E333-40FC-B2DF-C7568ECFB985}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{645F9098-E333-40FC-B2DF-C7568ECFB985}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2254689-19EA-4E1D-8EEA-9947D6C80E78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2254689-19EA-4E1D-8EEA-9947D6C80E78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2254689-19EA-4E1D-8EEA-9947D6C80E78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2254689-19EA-4E1D-8EEA-9947D6C80E78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

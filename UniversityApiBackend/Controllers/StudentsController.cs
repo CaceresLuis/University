@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using UniversityApiBackend.Services;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Models.DataModels;
-using UniversityApiBackend.Services;
 
 namespace UniversityApiBackend.Controllers
 {
@@ -59,9 +59,7 @@ namespace UniversityApiBackend.Controllers
         public async Task<IActionResult> PutStudent(int id, Student student)
         {
             if (id != student.Id)
-            {
                 return BadRequest();
-            }
 
             _context.Entry(student).State = EntityState.Modified;
 
@@ -72,13 +70,9 @@ namespace UniversityApiBackend.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!StudentExists(id))
-                {
                     return NotFound();
-                }
                 else
-                {
                     throw;
-                }
             }
 
             return NoContent();
@@ -96,11 +90,9 @@ namespace UniversityApiBackend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
-            Student student = await _context.Students.FindAsync(id);
+            Student? student = await _context.Students.FindAsync(id);
             if (student == null)
-            {
                 return NotFound();
-            }
 
             _context.Students.Remove(student);
             await _context.SaveChangesAsync();

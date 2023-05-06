@@ -37,7 +37,7 @@ namespace UniversityApiBackend.Controllers
                 List<User> Logins = await GetUser();
                 UserTokens Token = new();
                 User? searchUser = (from user in _contex.Users
-                                    where user.Name == userLogins.UserName && user.Password == userLogins.Password
+                                    where user.Email == userLogins.UserName && user.Password == userLogins.Password
                                     select user).FirstOrDefault();
 
                 if (searchUser != null)

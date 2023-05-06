@@ -8,6 +8,5 @@ namespace UniversityApiBackend.Models.DataModels
         public virtual Course Course { get; set; } = new Course();
         [Required]
         public string List = string.Empty;
-
     }
 }

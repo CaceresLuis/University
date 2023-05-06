@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
+using UniversityApiBackend.Models.Dtos;
 using UniversityApiBackend.Models.DataModels;
-using UniversityApiBackend.Services;
 
 namespace UniversityApiBackend.Controllers
 {
@@ -10,107 +11,153 @@ namespace UniversityApiBackend.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly UniversityDBContex _context;
-        private readonly ICourseService _courseService;
 
-        public CoursesController(UniversityDBContex context, ICourseService courseService)
+        public CoursesController(UniversityDBContex context, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
-            _courseService = courseService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
         {
-            return await _context.Courses.ToListAsync();
+            List<Course> courses = await _context.Courses.Include(c => c.CourseCategories).ToListAsync();
+
+            return Ok(_mapper.Map<List<CourseDto>>(courses));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CourseDto>> GetCourse(int id)
+        {
+            Course? course = await _context.Courses.
+                Include(c => c.CourseCategories).FirstOrDefaultAsync(c => c.Id == id);
+            if (course == null)
+                return NotFound();
+
+            return Ok(_mapper.Map<CourseDto>(course));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<bool>> PostCourse(AddOrEditCourseDto courseDto)
+        {
+            Course course = _mapper.Map<Course>(courseDto);
+
+            _context.Courses.Add(course);
+
+            if (courseDto.CategoryId != null)
+            {
+                foreach (int categoryId in courseDto.CategoryId)
+                {
+                    Category? category = await _context.Categories.FindAsync(categoryId);
+                    if (category != null)
+                    {
+                        CourseCategory courseCategory = new()
+                        {
+                            Course = course,
+                            Category = category
+                        };
+
+                        _context.CourseCategories.Add(courseCategory);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(true);
         }
 
         //1. Get all the Courses of a specific category
         [Route("ByCategory")]
         [HttpGet]
-        public ActionResult<IEnumerable<Course>> GetCoursesByCategory(int categoryId)
+        public async Task<ActionResult<IEnumerable<CourseCategoryDetailsDto>>> GetCoursesByCategory(int categoryId)
         {
-            IEnumerable<Course> courses = _courseService.GetCoursesByCategory(categoryId);
+            List<CourseCategory> coursesCategory = await _context.CourseCategories.Include(cc => cc.Course)
+                .Include(cc => cc.Category).Where(cc => cc.CategoryId == categoryId).ToListAsync();
 
-            if (courses == null)
-            {
+            if (coursesCategory == null)
                 return NotFound();
-            }
 
-            return Ok(courses);
+            return Ok(_mapper.Map<IEnumerable<CourseCategoryDetailsDto>>(coursesCategory));
         }
 
         //3. Get Uncategorized Courses
         [Route("CoursesUncategorized")]
         [HttpGet]
-        public ActionResult<IEnumerable<Course>> GetCoursesUncategorized()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCoursesUncategorized()
         {
-            IEnumerable<Course> courses = _courseService.GetUncategorizedCourses();
+            List<Course> courses = await _context.Courses.Include(c => c.CourseCategories).Where(c => c.CourseCategories!.Count <= 0).ToListAsync();
 
             if (courses == null)
-            {
                 return NotFound();
-            }
 
-            return Ok(courses);
+            return Ok(_mapper.Map<IEnumerable<CourseDto>>(courses));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCourse(int id, Course course)
+        public async Task<ActionResult<bool>> PutCourse(int id, AddOrEditCourseDto courseDto)
         {
-            if (id != course.Id)
+            if (id != courseDto.Id || string.IsNullOrEmpty(courseDto.UpdatedBy))
+                return BadRequest("Datos invalidos");
+
+            Course? course = await _context.Courses.FindAsync(id);
+            if (course is null)
+                return BadRequest("El curso no existee");
+
+            course.Level = courseDto.Level;
+            course.UpdatedAt = DateTime.Now;
+            course.UpdatedBy = courseDto.UpdatedBy;
+            course.Objetives = courseDto.Objetives ?? course.Objetives;
+            course.Requirements = courseDto.Requirements ?? course.Requirements;
+            course.TargetAudiences = courseDto.TargetAudiences ?? course.TargetAudiences;
+            course.LongDescription = courseDto.LongDescription ?? course.LongDescription;
+            course.ShortDescription = courseDto.ShortDescription ?? course.ShortDescription;
+
+            if (courseDto.CategoryId != null)
             {
-                return BadRequest();
+                foreach (int categoryId in courseDto.CategoryId)
+                {
+                    Category? category = await _context.Categories.FindAsync(categoryId);
+                    if (category != null)
+                    {
+                        CourseCategory courseCategory = new()
+                        {
+                            Course = course,
+                            Category = category
+                        };
+
+                        _context.CourseCategories.Add(courseCategory);
+                    }
+                }
             }
 
-            _context.Entry(course).State = EntityState.Modified;
+            _context.Courses.Update(course);
 
             try
             {
                 await _context.SaveChangesAsync();
+                return Ok(true);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException e)
             {
-                if (!CourseExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(e.Message);
             }
-
-            return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Course>> PostCourse(Course course)
-        {
-            _context.Courses.Add(course);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCourse", new { id = course.Id }, course);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCourse(int id)
+        public async Task<ActionResult<bool>> DeleteCourse(int id)
         {
             Course? course = await _context.Courses.FindAsync(id);
-            if (course == null)
-            {
+            if (course is null)
                 return NotFound();
-            }
 
             _context.Courses.Remove(course);
+            _context.CourseCategories.RemoveRange(course.CourseCategories!);
             await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
-
-        private bool CourseExists(int id)
-        {
-            return _context.Courses.Any(e => e.Id == id);
+            return Ok(true);
         }
     }
 }

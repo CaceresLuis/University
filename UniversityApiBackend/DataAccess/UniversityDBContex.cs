@@ -17,6 +17,8 @@ namespace UniversityApiBackend.DataAccess
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<StudentCourse> StudentCourses { get; set; }
+        public DbSet<CourseCategory> CourseCategories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

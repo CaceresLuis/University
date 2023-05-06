@@ -5,8 +5,8 @@ namespace UniversityApiBackend.Models.DataModels
     public class Category : BaseEntity
     {
         [Required]
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
 
-        public ICollection<Course> Courses { get; set; } = new List<Course>();
+        public ICollection<CourseCategory>? CourseCategories { get; set; }
     }
 }

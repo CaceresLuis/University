@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Models.DataModels;
+using UniversityApiBackend.Models.Dtos;
 using UniversityApiBackend.Services;
 
 namespace UniversityApiBackend.Controllers
@@ -10,42 +12,51 @@ namespace UniversityApiBackend.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly UniversityDBContex _context;
         private readonly ICategoryService _categoryService;
 
-        public CategoriesController(UniversityDBContex context, ICategoryService categoryService)
+        public CategoriesController(UniversityDBContex context, ICategoryService categoryService, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
             _categoryService = categoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            List<Category> categories = await _context.Categories.ToListAsync();
+            return _mapper.Map<List<CategoryDto>>(categories);
         }
 
-        //4. Get category of a specific course
         [HttpGet("{id}")]
-        public ActionResult<Category> GetCategoryOfCourse(int id)
+        public async Task<ActionResult<CategoryDto>> GetCategory(int id)
         {
-            var category = _categoryService.GetCategoryBySpecificCourse(id);
-
-            if (category == null)
-            {
+            Category? category = await _context.Categories.FindAsync(id);
+            if (category is null)
                 return NotFound();
-            }
 
-            return category;
+            return _mapper.Map<CategoryDto>(category);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<bool>> PostCategory(CategoryDto categoryDto)
+        {
+            Category category = _mapper.Map<Category>(categoryDto);
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return Ok(true);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<ActionResult<bool>> PutCategory(int id, CategoryDto categoryDto)
         {
-            if (id != category.Id)
-            {
+            if (id != categoryDto.Id)
                 return BadRequest();
-            }
+
+            Category category = _mapper.Map<Category>(categoryDto);
 
             _context.Entry(category).State = EntityState.Modified;
 
@@ -56,40 +67,25 @@ namespace UniversityApiBackend.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!CategoryExists(id))
-                {
                     return NotFound();
-                }
                 else
-                {
                     throw;
-                }
             }
 
-            return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
-        {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
+            return Ok(true);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<ActionResult<bool>> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
+            Category? category = await _context.Categories.FindAsync(id);
+            if (category is null)
                 return NotFound();
-            }
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(true);
         }
 
         private bool CategoryExists(int id)
