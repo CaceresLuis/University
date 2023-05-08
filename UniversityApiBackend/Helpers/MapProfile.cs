@@ -9,9 +9,13 @@ namespace UniversityApiBackend.Helpers
         public MapProfile()
         {
             CreateMap<Course, CourseDto>().ReverseMap();
-            CreateMap<Course, AddOrEditCourseDto>().ReverseMap();
+            CreateMap<Student, StudentDto>().ReverseMap();
             CreateMap<Category, CategoryDto>().ReverseMap();
+            CreateMap<Course, AddOrEditCourseDto>().ReverseMap();
+            CreateMap<Student, AddOrEditStudentDto>().ReverseMap();
+            CreateMap<StudentCourse, StudentCourseDto>().ReverseMap();
             CreateMap<CourseCategory, CourseCategoryDto>().ReverseMap();
+            CreateMap<StudentCourse, StudentCourseDetailsDto>().ReverseMap();
             CreateMap<CourseCategory, CourseCategoryDetailsDto>().ReverseMap();
         }
     }

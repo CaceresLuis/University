@@ -23,7 +23,9 @@ namespace UniversityApiBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
         {
-            List<Course> courses = await _context.Courses.Include(c => c.CourseCategories).ToListAsync();
+            List<Course> courses = await _context.Courses.Include(c => c.CourseCategories).Where(c => !c.IsDeleted).ToListAsync();
+            if(courses.Count <= 0)
+                return NotFound();
 
             return Ok(_mapper.Map<List<CourseDto>>(courses));
         }
@@ -31,8 +33,8 @@ namespace UniversityApiBackend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CourseDto>> GetCourse(int id)
         {
-            Course? course = await _context.Courses.
-                Include(c => c.CourseCategories).FirstOrDefaultAsync(c => c.Id == id);
+            Course? course = await _context.Courses.Where(c => !c.IsDeleted)
+                .Include(c => c.CourseCategories).FirstOrDefaultAsync(c => c.Id == id);
             if (course == null)
                 return NotFound();
 
@@ -43,12 +45,11 @@ namespace UniversityApiBackend.Controllers
         public async Task<ActionResult<bool>> PostCourse(AddOrEditCourseDto courseDto)
         {
             Course course = _mapper.Map<Course>(courseDto);
-
             _context.Courses.Add(course);
 
-            if (courseDto.CategoryId != null)
+            if (courseDto.CategoriesId!.Count >= 1)
             {
-                foreach (int categoryId in courseDto.CategoryId)
+                foreach (int categoryId in courseDto.CategoriesId)
                 {
                     Category? category = await _context.Categories.FindAsync(categoryId);
                     if (category != null)
@@ -77,7 +78,7 @@ namespace UniversityApiBackend.Controllers
             List<CourseCategory> coursesCategory = await _context.CourseCategories.Include(cc => cc.Course)
                 .Include(cc => cc.Category).Where(cc => cc.CategoryId == categoryId).ToListAsync();
 
-            if (coursesCategory == null)
+            if (coursesCategory.Count <= 0)
                 return NotFound();
 
             return Ok(_mapper.Map<IEnumerable<CourseCategoryDetailsDto>>(coursesCategory));
@@ -88,9 +89,10 @@ namespace UniversityApiBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetCoursesUncategorized()
         {
-            List<Course> courses = await _context.Courses.Include(c => c.CourseCategories).Where(c => c.CourseCategories!.Count <= 0).ToListAsync();
+            List<Course> courses = await _context.Courses.Include(c => c.CourseCategories)
+                .Where(c => c.CourseCategories!.Count <= 0 && !c.IsDeleted).ToListAsync();
 
-            if (courses == null)
+            if (courses.Count <= 0)
                 return NotFound();
 
             return Ok(_mapper.Map<IEnumerable<CourseDto>>(courses));
@@ -115,9 +117,9 @@ namespace UniversityApiBackend.Controllers
             course.LongDescription = courseDto.LongDescription ?? course.LongDescription;
             course.ShortDescription = courseDto.ShortDescription ?? course.ShortDescription;
 
-            if (courseDto.CategoryId != null)
+            if (courseDto.CategoriesId!.Count > 0)
             {
-                foreach (int categoryId in courseDto.CategoryId)
+                foreach (int categoryId in courseDto.CategoriesId)
                 {
                     Category? category = await _context.Categories.FindAsync(categoryId);
                     if (category != null)
@@ -137,8 +139,7 @@ namespace UniversityApiBackend.Controllers
 
             try
             {
-                await _context.SaveChangesAsync();
-                return Ok(true);
+                return Ok(await _context.SaveChangesAsync() >= 0);
             }
             catch (DbUpdateConcurrencyException e)
             {
@@ -147,17 +148,19 @@ namespace UniversityApiBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> DeleteCourse(int id)
+        public async Task<ActionResult<bool>> DeleteCourse(int id, string deleteBy)
         {
             Course? course = await _context.Courses.FindAsync(id);
             if (course is null)
                 return NotFound();
 
-            _context.Courses.Remove(course);
-            _context.CourseCategories.RemoveRange(course.CourseCategories!);
-            await _context.SaveChangesAsync();
+            course.IsDeleted = true;
+            course.DeletedAt = DateTime.UtcNow;
+            course.DeletedBy = deleteBy;
 
-            return Ok(true);
+            _context.Courses.Update(course);
+
+            return Ok(await _context.SaveChangesAsync() > 0);
         }
     }
 }

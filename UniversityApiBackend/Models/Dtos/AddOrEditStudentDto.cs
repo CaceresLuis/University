@@ -3,14 +3,11 @@ using UniversityApiBackend.Models.DataModels;
 
 namespace UniversityApiBackend.Models.Dtos
 {
-    public class StudentDto : BaseEntity
+    public class AddOrEditStudentDto : BaseEntity
     {
-        [Required]
         public string FirstName { get; set; } = string.Empty;
-        [Required]
         public string LastName { get; set; } = string.Empty;
-        [Required]
         public DateTime Dob { get; set; }
-        public ICollection<StudentCourseDetailsDto>? Courses { get; set; }
+        public ICollection<int>? CoursesId { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace UniversityApiBackend.Models.Dtos
         public string? TargetAudiences { get; set; }
         public string? Objetives { get; set; }
         public string? Requirements { get; set; }
-        public ICollection<int>? CategoryId { get; set; }
+        public ICollection<int>? CategoriesId { get; set; }
         public Level Level { get; set; } = Level.Basic;
     }
 }
