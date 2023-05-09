@@ -2,7 +2,6 @@
 using Serilog;
 using UniversityApiBackend;
 using Microsoft.OpenApi.Models;
-using UniversityApiBackend.Services;
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
 
@@ -35,11 +34,6 @@ builder.Services.AddControllers();
 
 //1- LOCALIZATION
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-//4. Add custom services (forder services)
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 //8.Add Autorization
 builder.Services.AddAuthorization(options =>

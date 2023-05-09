@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using UniversityApiBackend.Services;
 using UniversityApiBackend.DataAccess;
 using UniversityApiBackend.Models.Dtos;
 using UniversityApiBackend.Models.DataModels;
@@ -14,13 +13,11 @@ namespace UniversityApiBackend.Controllers
     {
         private readonly IMapper _mapper;
         private readonly UniversityDBContex _context;
-        private readonly IStudentService _studentService;
 
-        public StudentsController(UniversityDBContex context, IStudentService studentService, IMapper mapper)
+        public StudentsController(UniversityDBContex context, IMapper mapper)
         {
             _mapper = mapper;
             _context = context;
-            _studentService = studentService;
         }
 
         [HttpGet]

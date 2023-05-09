@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniversityApiBackend.DataAccess;
-using UniversityApiBackend.Models.DataModels;
 using UniversityApiBackend.Models.Dtos;
-using UniversityApiBackend.Services;
+using UniversityApiBackend.Models.DataModels;
 
 namespace UniversityApiBackend.Controllers
 {
@@ -14,13 +13,11 @@ namespace UniversityApiBackend.Controllers
     {
         private readonly IMapper _mapper;
         private readonly UniversityDBContex _context;
-        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(UniversityDBContex context, ICategoryService categoryService, IMapper mapper)
+        public CategoriesController(UniversityDBContex context, IMapper mapper)
         {
             _mapper = mapper;
             _context = context;
-            _categoryService = categoryService;
         }
 
         [HttpGet]
